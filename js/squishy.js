@@ -171,7 +171,7 @@ $(document).ready(() => {
 		// todo: start player where they finished last map
 			// if map changes size how do we handle that?
 
-			
+
 		// todo: use contours as a measure of difficulty instead of just open space
 		if(!initialized || rewinding) {
 			if(moveTimer > 0) {
@@ -280,6 +280,7 @@ $(document).ready(() => {
 				// todo: deactivate motion better across the board
 
 				game.map.maxValue--;
+				resetUpdateTimeout();
 				if(game.map.maxValue <= 1) {
 					newGame();
 				}
