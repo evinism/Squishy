@@ -1,0 +1,44 @@
+body {
+	touch-action: none;
+}
+body,
+html{
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	background-color: #d8d8d8;
+	text-align: center;
+}
+
+.center-content {
+	padding: 0;
+	margin: 0 auto;
+	display: inline-block;
+}
+
+.control-buttons {
+	text-align: left;
+}
+
+input {
+	padding: 10px;
+	text-decoration: none;
+	cursor: pointer;
+	border: none;
+	border-radius: 10px;
+	background-color: white;
+	font-size: 20;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
