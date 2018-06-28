@@ -87,9 +87,7 @@ $(document).ready(() => {
 	var fpsWait = 1000/fps;
 	var maxWaitBeforePausing = 1000;
 
-	var forwardSpeed = 0;
 	var rewindSpeed = 0;
-	var readyPause = 0;
 
 	var pauseCounter = 0;
 	var updateInterval = null;
@@ -115,74 +113,41 @@ $(document).ready(() => {
 	function resetGame() {
 		// can rewind speed be set each time to game.map.cellAtPlayer().value * const?
 		rewindSpeed = Math.max(80 - game.map.cellAtPlayer().value, 0);
-		//initialized = false;
 		rewinding = true;
 		mouseUnlocked = false;
 		resetUpdateTimeout();
 	}
 
 	function newGame() {
-		game = null;
+		var size = Math.floor(Math.random()*3) + 6;
+		game = new Game(size, size);
+		cellSize = width/size;
 		mouseUnlocked = false;
 		resetUpdateTimeout();
 	}
+	newGame();
 
-	// todo: nicer stars / not just orange blocks
 	// todo: animations for stars
-	// todo: procedural generation for maps
-	// todo: nice animation for finishing
-	// todo: undo/reset button
 	// todo: nice keyboard input?
 
 	var moveTimer = 0;
 	var rewinding = false;
-	var initialized = false;
 	function update() {
 
-		if(game == null) {
-			var size = Math.floor(Math.random()*3) + 6;
-			var rows = [];
-			for(var i=0;i<size;i++) {
-				var row = [];
-				for(var j=0;j<size;j++) {
-					row.push(0);
-				}
-				rows.push(row);
-			}
-
-			var x, y;
-			for(var i=0;i<Math.random()*6+1;i++) {
-				x = Math.floor(Math.random()*size);
-				y = Math.floor(Math.random()*size);
-				rows[y][x] = -1;
-			}
-			rows[y][x] = 'x';
-			game = new Game(rows);
-			cellSize = width/size;
-
-			moveTimer = 0;
-			rewinding = false;
-			initialized = false;
-		}
-
-		// todo: move map generation to map class?
-		// we'd lose out on offering the animation for generation/prep
-
+		
 		// todo: start player where they finished last map
 			// if map changes size how do we handle that?
 
 
 		// todo: use contours as a measure of difficulty instead of just open space
-		if(!initialized || rewinding) {
+		if(rewinding) {
 			if(moveTimer > 0) {
 				moveTimer--;
 			}
-			else if(rewinding == true) {
+			else {
 				if(!game.map.moveBackwards()) {
 
 					rewinding = false;
-
-					initialized = true;
 				}
 				else {
 
@@ -191,69 +156,13 @@ $(document).ready(() => {
 						var maxValue = game.map.maxValue;
 
 						rewindSpeed = 30*(1.0 - value/maxValue) + 10;
-						console.log(rewindSpeed);
 					}
 					moveTimer = rewindSpeed/fpsWait;
 				}
 			}
-			else {
-				if(game.map.moveRandomly()) {
-					moveTimer = rewindSpeed/fpsWait;
-				}
-				else {
-					for(var i=0;i<game.map.height;i++) {
-						for(var j=0;j<game.map.width;j++) {
-							var cell = game.map.cellAt(j, i);
-							if(cell.value == -1) {
-								cell.type = MapCell.Type.WALL;
-							}
-						}
-					}
-
-					rewinding = true;
-					moveTimer = readyPause/fpsWait;
-
-					// if we decide that there aren't enough cells, say 50% of the map?
-					// then reset?
-					if(game.map.cellAtPlayer().value < game.map.width*game.map.height/2) {
-						game = null;
-						update();
-						resetUpdateTimeout();
-					}
-					else {
-						game.map.maxValue = game.map.cellAtPlayer().value;
-
-						// let's add some stars
-						var stars = [];
-						while(stars.length < 3) {
-							var x = Math.floor(Math.random()*game.map.width);
-							var y = Math.floor(Math.random()*game.map.height);
-							var cell = game.map.cellAt(x, y);
-
-							// cell must be empty and not located at the start
-							if(cell.type == MapCell.Type.EMPTY && 
-								cell.value > 1) {
-								cell.type = MapCell.Type.STAR;
-								stars.push(cell);
-							}
-						}
-						stars.sort((a, b) => {
-							return a.value-b.value;
-						});
-						stars[0].order = 1;
-						stars[1].order = 2;
-						stars[2].order = 3;
-
-					}
-				}
-			}
+			
 			game.update(0, 0);
 
-			if(!initialized) {
-				// if not initialized, continue setting up until we perform a full forward-reverse
-				// we could choose to rapidly animate this instead by not updating manually
-				update();
-			}
 			resetUpdateTimeout();
 			mouseActive = false;
 		}
